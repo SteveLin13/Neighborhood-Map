@@ -5,7 +5,7 @@ var markers = [];
 
 function initMap() {
   map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 37.4116913, lng: -121.9958031},
+    center: {lat: 37.3986304, lng: -122.0162201},
     zoom: 13
   });
 
@@ -15,6 +15,7 @@ function initMap() {
     {title: 'Microsoft', location: {lat: 37.4116103, lng: -122.0713127}},
     {title: 'Apple Campus 3', location: {lat: 37.3795358, lng: -122.0111346}},
     {title: 'Intel Corporation', location: {lat: 37.3875909, lng: -121.9637869 }},
+    {title: 'Udacity', location: {lat: 37.399913, lng: -122.108363 }},
   ];
 
   var infowindow = new google.maps.InfoWindow({});

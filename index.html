@@ -6,7 +6,17 @@
         <link rel="stylesheet" href="css/styles.css">
     </head>
     <body>
-        <div id="map"></div>
+        <div class="container">
+          <div class="options-box">
+            <h1>Silicon Valley News</h1>
+            <div>
+              <span class="text">See what's happening here</span>
+              <input id="corporations-search" type="text" placeholder="Ex: Udacity">
+              <input id="search-news" type="button" value="Search">
+            </div>
+          </div>
+          <div id="map"></div>
+        </div>
 
         <script src="js/lib/knockout-3.2.0.js"></script>
         <script src="js/map.js"></script>
