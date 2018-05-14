@@ -11,12 +11,12 @@
         <h1>Silicon Valley News</h1>
         <div>
           <span class="text">See what's happening here</span>
-          <input id="corporations-search" type="text" placeholder="Ex: Udacity">
+          <input id="corporations-search" type="text" placeholder="Ex: Udacity" >
           <input id="search-news" type="button" value="Search">
         </div>
         <div>
-          <ul data-bind = "foreach: { data: locationsArray }">
-            <li data-bind = "text: title" ></li>
+          <ul data-bind = "foreach: companiesList">
+            <li data-bind = "text: title, click: $parent.toCompany" ></li>
           </ul>
         </div>
       </div>

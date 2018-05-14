@@ -1,5 +1,5 @@
 
-var locations = [
+var companies = [
     {title: 'Googleplex', location: {lat: 37.4220147, lng: -122.0840693}},
     {title: 'Yahoo', location: {lat: 37.4171578, lng: -122.025007}},
     {title: 'Microsoft', location: {lat: 37.4116103, lng: -122.0713127}},
@@ -8,16 +8,20 @@ var locations = [
     {title: 'Udacity', location: {lat: 37.399913, lng: -122.108363 }},
 ];
 
+var Company = function(data) {
+  this.title = data.title;
+  this.location = data.location;
+  this.marker = data.marker;
+}
+
 var ViewModel = function() {
-  this.locationsArray = ko.observableArray(locations);
-
-
+  var markers = [];
   var infowindow = new google.maps.InfoWindow({});
 
-  for (var i = 0; i < locations.length; i++) {
+  for (var i = 0; i < companies.length; i++) {
     // Get the position from the location array.
-    var position = locations[i].location;
-    var title = locations[i].title;
+    var position = companies[i].location;
+    var title = companies[i].title;
     // Create a marker per location, and put into markers array.
     var marker = new google.maps.Marker({
       map: map,
@@ -26,6 +30,8 @@ var ViewModel = function() {
       animation: google.maps.Animation.DROP,
       id: i
     });
+    //将marker与相应的company进行绑定
+    companies[i].marker = marker;
     // Push the marker to our array of markers.
     markers.push(marker);
     // Create an onclick event to open an infowindow at each marker.
@@ -35,6 +41,24 @@ var ViewModel = function() {
     });
 
   }
+
+  var self = this;
+
+  this.companiesList = ko.observableArray([]);
+
+  companies.forEach(function(company) {
+    self.companiesList.push(new Company(company));
+  });
+
+  this.currentCompany = ko.observable();
+  //点击列表项，相应的地标会有反映，且显示相关信息
+  this.toCompany = function(selectedCompany) {
+    self.currentCompany(selectedCompany);
+    toggleBounce(self.currentCompany().marker);
+    populateInfoWindow(self.currentCompany().marker, infowindow);
+  };
+
+
 
   // This function populates the infowindow when the marker is clicked. We'll only allow
   // one infowindow which will open at the marker that is clicked, and populate based
