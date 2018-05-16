@@ -3,8 +3,8 @@ var companies = [
     {title: 'Googleplex', location: {lat: 37.4220147, lng: -122.0840693}},
     {title: 'Yahoo', location: {lat: 37.4171578, lng: -122.025007}},
     {title: 'Microsoft', location: {lat: 37.4116103, lng: -122.0713127}},
-    {title: 'Apple Campus 3', location: {lat: 37.3795358, lng: -122.0111346}},
-    {title: 'Intel Corporation', location: {lat: 37.3875909, lng: -121.9637869 }},
+    {title: 'Apple', location: {lat: 37.3795358, lng: -122.0111346}},
+    {title: 'Intel', location: {lat: 37.3875909, lng: -121.9637869 }},
     {title: 'Udacity', location: {lat: 37.399913, lng: -122.108363 }},
 ];
 
@@ -17,6 +17,7 @@ var Company = function(data) {
 var ViewModel = function() {
   var markers = [];
   var infowindow = new google.maps.InfoWindow({});
+  var bounds = new google.maps.LatLngBounds();
 
   for (var i = 0; i < companies.length; i++) {
     // Get the position from the location array.
@@ -38,8 +39,10 @@ var ViewModel = function() {
       toggleBounce(this);
       populateInfoWindow(this, infowindow);
     });
-
+    bounds.extend(markers[i].position);
   }
+  // Extend the boundaries of the map for each marker
+  // map.fitBounds(bounds);
 
   var self = this;
 
@@ -106,10 +109,19 @@ var ViewModel = function() {
   // one infowindow which will open at the marker that is clicked, and populate based
   // on that markers position.
   function populateInfoWindow(marker, infowindow) {
+    var contentString = '<div id="content">'+
+      '<div class="nytimes-container">'+
+      '<h3 id="nytimes-header">New York Times Articles</h3>'+
+      '<ul id="nytimes-articles" class="article-list">'+
+      '</ul>'+
+      '</h3>'+
+      '</div>'+
+      '</div>';
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
       infowindow.marker = marker;
-      infowindow.setContent('<div>' + marker.title + '</div>');
+      infowindow.setContent(contentString);
+      loadData(marker);
       infowindow.open(map, marker);
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
@@ -131,35 +143,38 @@ var ViewModel = function() {
       }
   }
 
-// function loadData() {
+  function loadData(company) {
 
-//   var $nytHeaderElem = $('#nytimes-header');
-//   var $nytElem = $('#nytimes-articles');
+    var $nytHeaderElem = $('#nytimes-header');
+    var $nytElem = $('#nytimes-articles');
 
-//   $nytElem.text("");
+    $nytElem.text("");
 
-//   var streetStr = $('#street').val();
+    var companyStr = company.title;
 
-//   // load nytimes
-//   // obviously, replace all the "X"s with your own API key
-//   var nytimesUrl = 'http://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + cityStr + '&sort=newest&api-key=7584ec63c3424efeb6bd8923b3777536';
-//   $.getJSON(nytimesUrl, function(data){
+    // load nytimes
+    // obviously, replace all the "X"s with your own API key
+    var nytimesUrl = 'http://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + companyStr + '&sort=newest&api-key=7584ec63c3424efeb6bd8923b3777536';
+    $.getJSON(nytimesUrl, function(data){
+      console.log(data);
+      $nytHeaderElem.text('New York Times Articles About ' + companyStr);
+      articles = data.response.docs;
+      for (var i = 0; i < 3; i++) {
+        var article = articles[i];
+        $nytElem.append('<li class="article">'+
+            '<a href="'+article.web_url+'">'+article.headline.main+'</a>'+
+            '<p>' + article.snippet + '</p>'+
+        '</li>');
+      };
+    }).error(function(e){
+      $nytHeaderElem.text('New York Times Articles Could Not Be Loaded');
+    });
 
-//   $nytHeaderElem.text('New York Times Articles About ' + cityStr);
-
-//   articles = data.response.docs;
-//   for (var i = 0; i < articles.length; i++) {
-//     var article = articles[i];
-//     $nytElem.append('<li class="article">'+
-//         '<a href="'+article.web_url+'">'+article.headline.main+'</a>'+
-//         '<p>' + article.snippet + '</p>'+
-//     '</li>');
-//   };
-
-//   }).error(function(e){
-//     $nytHeaderElem.text('New York Times Articles Could Not Be Loaded');
-//   });
-// }
+    // for (var i = 0; i < companies.length; i++) {
+    //   bounds.extend(markers[i].position);
+    // }
+    map.fitBounds(bounds);
+  }
 
 }
 
