@@ -9,7 +9,7 @@ var companies = [
 ];
 
 var Company = function(data) {
-  this.title = data.title;
+  this.title = ko.observable(data.title);
   this.location = data.location;
   this.marker = data.marker;
 }
@@ -24,7 +24,6 @@ var ViewModel = function() {
     var title = companies[i].title;
     // Create a marker per location, and put into markers array.
     var marker = new google.maps.Marker({
-      map: map,
       position: position,
       title: title,
       animation: google.maps.Animation.DROP,
@@ -58,7 +57,50 @@ var ViewModel = function() {
     populateInfoWindow(self.currentCompany().marker, infowindow);
   };
 
+//筛选器
+  this.filter = ko.observable('');
+  //将筛选后的数组封装、监控起来
+  this.filteredItems = ko.computed(function() {
+    var filter = self.filter().toLowerCase();
+    //如果没有筛选条件，则显示所有地标，返回所有列表项
+    if (!filter) {
+        showMarkers(markers);
+        return self.companiesList();
+    } else {
+      hideMarkers(markers);
+      //arrayFilter()函数对companiesList()里的每一个列表项执行一个函数，并返回其真值，决定其是否在筛选后的companiesList()里
+      return ko.utils.arrayFilter(self.companiesList(), function(company) {
+        //列表项标题与筛选条件开头是否匹配
+        var match = ko.utils.stringStartsWith(company.title().toLowerCase(), filter);
+        //如果匹配，则显示相应地标
+        if (match === true) {
+          company.marker.setMap(map);
+          company.marker.setAnimation(google.maps.Animation.BOUNCE);
+        }
+        return match;
+      });
+    }
+  }, this);
+  //字符串开头匹配函数
+  ko.utils.stringStartsWith = function (string, startsWith) {
+    string = string || "";
+    if (startsWith.length > string.length)
+       return false;
+    return string.substring(0, startsWith.length) === startsWith;
+  };
 
+  //在地图上隐藏数组内所有地标的函数
+  function hideMarkers(markers) {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(null);
+    }
+  }
+  //在地图上显示数组内所有地标的函数
+  function showMarkers(markers) {
+    for (var i = 0; i < markers.length; i++) {
+      markers[i].setMap(map);
+    }
+  }
 
   // This function populates the infowindow when the marker is clicked. We'll only allow
   // one infowindow which will open at the marker that is clicked, and populate based
@@ -89,6 +131,35 @@ var ViewModel = function() {
       }
   }
 
+// function loadData() {
+
+//   var $nytHeaderElem = $('#nytimes-header');
+//   var $nytElem = $('#nytimes-articles');
+
+//   $nytElem.text("");
+
+//   var streetStr = $('#street').val();
+
+//   // load nytimes
+//   // obviously, replace all the "X"s with your own API key
+//   var nytimesUrl = 'http://api.nytimes.com/svc/search/v2/articlesearch.json?q=' + cityStr + '&sort=newest&api-key=7584ec63c3424efeb6bd8923b3777536';
+//   $.getJSON(nytimesUrl, function(data){
+
+//   $nytHeaderElem.text('New York Times Articles About ' + cityStr);
+
+//   articles = data.response.docs;
+//   for (var i = 0; i < articles.length; i++) {
+//     var article = articles[i];
+//     $nytElem.append('<li class="article">'+
+//         '<a href="'+article.web_url+'">'+article.headline.main+'</a>'+
+//         '<p>' + article.snippet + '</p>'+
+//     '</li>');
+//   };
+
+//   }).error(function(e){
+//     $nytHeaderElem.text('New York Times Articles Could Not Be Loaded');
+//   });
+// }
 
 }
 
