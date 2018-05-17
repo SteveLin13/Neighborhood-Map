@@ -9,4 +9,6 @@ function initMap() {
   ko.applyBindings(new ViewModel());
 }
 
-
+function mapErrorHandler() {
+   alert('Google Map Could Not Be Loaded');
+}

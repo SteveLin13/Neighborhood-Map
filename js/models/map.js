@@ -15,6 +15,10 @@ var Company = function(data) {
 }
 
 var ViewModel = function() {
+  var self = this;
+
+  this.shouldShowSidebar = ko.observable(false);
+
   var markers = [];
   var infowindow = new google.maps.InfoWindow({});
   var bounds = new google.maps.LatLngBounds();
@@ -41,11 +45,8 @@ var ViewModel = function() {
     });
     bounds.extend(markers[i].position);
   }
-  // Extend the boundaries of the map for each marker
-  // map.fitBounds(bounds);
 
-  var self = this;
-
+  //marker生成完毕，开始companiesList()的封装
   this.companiesList = ko.observableArray([]);
 
   companies.forEach(function(company) {
@@ -78,7 +79,8 @@ var ViewModel = function() {
         //如果匹配，则显示相应地标
         if (match === true) {
           company.marker.setMap(map);
-          company.marker.setAnimation(google.maps.Animation.BOUNCE);
+          toggleBounce(company.marker);
+          // company.marker.setAnimation(google.maps.Animation.BOUNCE);
         }
         return match;
       });
@@ -90,6 +92,15 @@ var ViewModel = function() {
     if (startsWith.length > string.length)
        return false;
     return string.substring(0, startsWith.length) === startsWith;
+  };
+
+ //显示侧边栏的函数
+  this.showSidebar = function() {
+    self.shouldShowSidebar(true);
+  };
+  //关闭侧边栏的函数
+  this.closeSidebar = function() {
+    self.shouldShowSidebar(false);
   };
 
   //在地图上隐藏数组内所有地标的函数
@@ -121,8 +132,9 @@ var ViewModel = function() {
     if (infowindow.marker != marker) {
       infowindow.marker = marker;
       infowindow.setContent(contentString);
-      loadData(marker);
+      //infoWindow()生成相应DOM之后，loadData()才能将相应数据添加上去
       infowindow.open(map, marker);
+      loadData(marker);
       // Make sure the marker property is cleared if the infowindow is closed.
       infowindow.addListener('closeclick', function() {
         infowindow.marker = null;
@@ -140,6 +152,10 @@ var ViewModel = function() {
         marker.setAnimation(null);
       } else {
         marker.setAnimation(google.maps.Animation.BOUNCE);
+        //地标跳跃一段时间后会停止
+        setTimeout(function () {
+            marker.setAnimation(null);
+        }, 2000);
       }
   }
 
@@ -166,7 +182,7 @@ var ViewModel = function() {
             '<p>' + article.snippet + '</p>'+
         '</li>');
       };
-    }).error(function(e){
+    }).fail(function(e){
       $nytHeaderElem.text('New York Times Articles Could Not Be Loaded');
     });
 

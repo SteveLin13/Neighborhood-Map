@@ -7,7 +7,8 @@
   </head>
   <body>
     <div class="container">
-      <div class="options-box">
+      <div class="options-box" data-bind="visible: shouldShowSidebar">
+        <button class="close-btn" data-bind="click: closeSidebar">X</button>
         <h1>Silicon Valley News</h1>
         <div>
           <span class="text">See what's happening here</span>
@@ -20,15 +21,18 @@
           </ul>
         </div>
       </div>
-      <div id="map"></div>
+      <div class="main">
+        <button class="open-btn" data-bind="click: showSidebar">&#9776;</button>
+        <div id="map"></div>
+      </div>
     </div>
 
-    <script src="js/lib/jquery.min.js"></script>
+    <script src="js/lib/jquery-3.3.1.min.js"></script>
     <script src="js/lib/knockout-3.2.0.js"></script>
     <script src="js/models/map.js"></script>
     <script src="js/map.js"></script>
 
-    <script async defer src="https://maps.googleapis.com/maps/api/js?&key=AIzaSyAQnAaYwkd-JCZyKEB2gt6U7AKhTVQga_g&v=3&callback=initMap">
+    <script async defer src="https://maps.googleapis.com/maps/api/js?&key=AIzaSyAQnAaYwkd-JCZyKEB2gt6U7AKhTVQga_g&v=3&callback=initMap" onerror="mapErrorHandler()">
     </script>
   </body>
 </html>
